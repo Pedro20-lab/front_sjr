@@ -6,4 +6,3 @@ import RoomSearch from './components/RoomSearch.vue';
   <RoomSearch></RoomSearch>
 </template>
 
-

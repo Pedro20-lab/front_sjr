@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   room: {
     type: Object,
     required: true
@@ -9,14 +9,22 @@ const COP = Intl.NumberFormat('es-CO', {
   style: 'currency',
   currency: 'COP'
 })
+
 function formatPrice(price) {
   return COP.format(Number(price))
+}
+
+const emit = defineEmits(['selected-room'])
+
+function handleCardClick() {
+  emit('selected-room', props.room)
+  console.log(props.room)
 }
 </script>
 
 
 <template>
-  <article class="room-card">
+  <article class="room-card" role="button" tabindex="0" @click="handleCardClick" @keydown.enter="handleCardClick">
     <h3>Room {{ room.numero_habitacion }}</h3>
     <p><strong>Type:</strong> {{ room.tipo_habitacion }}</p>
     <p><strong>Price:</strong> {{ formatPrice(room.precio_habitacion )}} / night</p>
@@ -31,6 +39,12 @@ function formatPrice(price) {
   padding: 1rem;
   background-color: #ffffff;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+}
+
+.room-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .room-card h3 {
