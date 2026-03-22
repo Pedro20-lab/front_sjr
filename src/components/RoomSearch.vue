@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import RoomCard from './RoomCard.vue'
-
-const checkInDate = ref('')
-const checkOutDate = ref('')
+const today =  new Date().toISOString().split('T')[0]
+const checkInDate = ref(today)
+const checkOutDate = ref()
 const availableRooms = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
@@ -53,12 +53,12 @@ async function searchRooms() {
     <form class="search-form" @submit.prevent="searchRooms">
       <label>
         Check-in
-        <input v-model="checkInDate" type="date" />
+        <input v-model="checkInDate" type="date" :min="today" />
       </label>
 
       <label>
         Check-out
-        <input v-model="checkOutDate" type="date" />
+        <input v-model="checkOutDate" type="date" :min="checkInDate" />
       </label>
 
       <button type="submit" :disabled="loading">

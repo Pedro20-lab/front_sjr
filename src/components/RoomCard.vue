@@ -5,13 +5,21 @@ defineProps({
     required: true
   }
 })
+const COP = Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP'
+})
+function formatPrice(price) {
+  return COP.format(Number(price))
+}
 </script>
+
 
 <template>
   <article class="room-card">
     <h3>Room {{ room.numero_habitacion }}</h3>
     <p><strong>Type:</strong> {{ room.tipo_habitacion }}</p>
-    <p><strong>Price:</strong> ${{ room.precio_habitacion }} / night</p>
+    <p><strong>Price:</strong> {{ formatPrice(room.precio_habitacion )}} / night</p>
     <p><strong>Capacity:</strong> {{ room.capacidad_habitacion }} guests</p>
   </article>
 </template>
