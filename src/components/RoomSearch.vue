@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import RoomCard from './RoomCard.vue'
+import GuestInfoForm from './GuestInfoForm.vue'
 
 const checkInDate = ref('')
 const checkOutDate = ref('')
@@ -8,11 +9,13 @@ const availableRooms = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 const hasSearched = ref(false)
+const selectedRoom = ref(null)
 
 const API_BASE_URL = '/api'
 
 async function searchRooms() {
   errorMessage.value = ''
+  selectedRoom.value = null
 
   if (!checkInDate.value || !checkOutDate.value) {
     errorMessage.value = 'Por favor elija las fechas de check-in y check-out'
@@ -43,6 +46,12 @@ async function searchRooms() {
   } finally {
     loading.value = false
   }
+
+}
+
+function handleRoomSelected(room) {
+  selectedRoom.value = room;
+  console.log(selectedRoom.value)
 }
 </script>
 
@@ -76,8 +85,13 @@ async function searchRooms() {
       <RoomCard 
         v-for="room in availableRooms" 
         :key="room.id_habitacion ?? room.numero_habitacion" 
-        :room="room" />
+        :room="room"
+        @selected-room="handleRoomSelected" />
     </div>
+
+    <GuestInfoForm v-if="selectedRoom" :room="selectedRoom">
+
+    </GuestInfoForm>
   </section>
 </template>
 
