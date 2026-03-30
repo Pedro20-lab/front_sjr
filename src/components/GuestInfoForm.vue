@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
   room: {
@@ -10,6 +11,11 @@ const props = defineProps({
 
 const guestCount = ref(1)
 const guests = ref([])
+const bookingStatus = ref('')
+const bookingError = ref('')
+const bookingLoading = ref(false)
+
+const authStore = useAuthStore()
 
 const maxGuests = computed(() => {
   const capacity = Number(props.room?.capacidad_habitacion)
@@ -54,9 +60,51 @@ watch(
   () => {
     guestCount.value = 1
     guests.value = [createEmptyGuest()]
+    bookingStatus.value = ''
+    bookingError.value = ''
   },
   { immediate: true }
 )
+
+async function submitBooking() {
+  bookingStatus.value = ''
+  bookingError.value = ''
+
+  if (!authStore.user) {
+    bookingError.value = 'Please log in before submitting a booking.'
+    return
+  }
+
+  bookingLoading.value = true
+
+  const bookingPayload = {
+    user: authStore.user,
+    room: props.room,
+    guests: guests.value
+  }
+
+  try {
+    const response = await fetch('/api/bookings', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(bookingPayload)
+    })
+
+    if (!response.ok) {
+      throw new Error(`Booking failed with status ${response.status}`)
+    }
+
+    bookingStatus.value = 'Booking submitted successfully.'
+  } catch (error) {
+    bookingError.value = error?.message || 'Unable to submit booking right now.'
+  } finally {
+    bookingLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -105,6 +153,12 @@ watch(
         </label>
       </div>
     </div>
+    <button class="submit-booking" type="button" :disabled="bookingLoading" @click="submitBooking">
+      {{ bookingLoading ? 'Submitting booking...' : 'Submit booking' }}
+    </button>
+
+    <p v-if="bookingStatus" class="booking-status">{{ bookingStatus }}</p>
+    <p v-if="bookingError" class="booking-error">{{ bookingError }}</p>
   </section>
 </template>
 
@@ -146,11 +200,35 @@ label {
   gap: 0.35rem;
 }
 
-input {
+input,
+.submit-booking  {
   min-height: 38px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
   padding: 0.4rem 0.65rem;
   font: inherit;
+}
+
+.submit-booking {
+  margin-top: 0.5rem;
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+.submit-booking:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.booking-status {
+  margin-top: 0.6rem;
+  color: #166534;
+}
+
+.booking-error {
+  margin-top: 0.6rem;
+  color: #b91c1c;
 }
 </style>
