@@ -2,6 +2,14 @@
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
+  checkIn: {
+    type: String,
+    required: true
+  },
+  checkOut: {
+    type: String,
+    required: true
+  },
   room: {
     type: Object,
     required: true

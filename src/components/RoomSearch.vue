@@ -92,7 +92,7 @@ function handleRoomSelected(room) {
         @selected-room="handleRoomSelected" />
     </div>
 
-    <GuestInfoForm v-if="selectedRoom" :room="selectedRoom">
+    <GuestInfoForm :checkIn="checkInDate" :checkOut="checkOutDate" v-if="selectedRoom" :room="selectedRoom">
 
     </GuestInfoForm>
   </section>
