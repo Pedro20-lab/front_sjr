@@ -11,6 +11,14 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 
+function getCookie(name) {
+  const match = document.cookie
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith(name + '='))
+  return match ? decodeURIComponent(match.split('=')[1]) : null
+}
+
 async function handleSubmit() {
   errorMessage.value = ''
   loading.value = true
@@ -23,16 +31,18 @@ async function handleSubmit() {
     })
 
     if (!csrfResponse.ok) {
+      console.log('Error here')
       throw new Error('Could not initialize CSRF cookie.')
     }
 
     // 2) Submit login credentials
-    const loginResponse = await fetch('/login', {
+    const loginResponse = await fetch('/api/login', {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json'
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
       },
       body: JSON.stringify({
         email: email.value,
