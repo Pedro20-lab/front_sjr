@@ -45,8 +45,8 @@ async function handleSubmit() {
         'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
       },
       body: JSON.stringify({
-        email: email.value,
-        password: password.value
+        email_empledo: email.value,
+        password_empledo: password.value
       })
     })
 
