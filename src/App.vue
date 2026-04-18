@@ -5,6 +5,6 @@ import { RouterView } from 'vue-router';
 
 <template>
   <RoomSearch></RoomSearch>
-  <RouterView></RouterView>
+  <RouterView></RouterView> 
 </template>
 

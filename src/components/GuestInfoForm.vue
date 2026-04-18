@@ -22,6 +22,7 @@ const guests = ref([])
 const bookingStatus = ref('')
 const bookingError = ref('')
 const bookingLoading = ref(false)
+const guestLookupError = ref('')
 
 const authStore = useAuthStore()
 
@@ -113,6 +114,57 @@ async function submitBooking() {
     bookingLoading.value = false
   }
 }
+
+function clearGuestAutofillFields(guest) {
+  guest.name = ''
+  guest.lastname = ''
+  guest.nacionality = ''
+  guest.phoneNumber = ''
+}
+
+async function lookupGuestByDocument(guest) {
+  guestLookupError.value = ''
+  const documentNumber = guest.documentNumber?.trim()
+
+  if (!documentNumber) {
+    return
+  }
+
+  try {
+    const response = await fetch(`/api/huesped/find?num_doc_huesped=${encodeURIComponent(documentNumber)}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+
+    if (response.status === 404) {
+      clearGuestAutofillFields(guest)
+      return
+    }
+
+    if (!response.ok) {
+      throw new Error(`Guest lookup failed with status ${response.status}`)
+    }
+
+    const payload = await response.json()
+    const guestData = payload?.data ?? payload
+
+    if (!guestData) {
+      clearGuestAutofillFields(guest)
+      return
+    }
+
+    guest.name = guestData.nombre_huesped ?? ''
+    guest.lastname = guestData.apellido_huesped ?? ''
+    guest.nacionality = guestData.nacionalidad_huesped ?? ''
+    guest.phoneNumber = guestData.telefono_huesped ?? ''
+    guest.documentType = guestData.tipo_doc_huesped ?? ''
+  } catch (error) {
+    guestLookupError.value = error?.message || 'Unable to lookup guest by document.'
+  }
+}
 </script>
 
 <template>
@@ -152,7 +204,7 @@ async function submitBooking() {
 
         <label>
           Number of document
-          <input v-model="guest.documentNumber" type="text" />
+          <input v-model="guest.documentNumber" type="text" @blur="lookupGuestByDocument(guest)"/>
         </label>
 
         <label>
@@ -167,6 +219,7 @@ async function submitBooking() {
 
     <p v-if="bookingStatus" class="booking-status">{{ bookingStatus }}</p>
     <p v-if="bookingError" class="booking-error">{{ bookingError }}</p>
+    <p v-if="guestLookupError" class="booking-error">{{ guestLookupError }}</p>
   </section>
 </template>
 
