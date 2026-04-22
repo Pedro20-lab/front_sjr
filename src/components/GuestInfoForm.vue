@@ -87,8 +87,10 @@ async function submitBooking() {
   bookingLoading.value = true
 
   const bookingPayload = {
-    user: authStore.user,
-    room: props.room,
+    empleado_id: authStore.user.id_empleado,
+    habitacion_id: props.room.id_habitacion,
+    check_in: props.checkIn,
+    check_out: props.checkOut,
     guests: guests.value
   }
 
