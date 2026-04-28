@@ -68,8 +68,11 @@ async function handleSubmit() {
     errorMessage.value = error?.message || 'Unable to log in. Please try again.'
   } finally {
     loading.value = false
-  }
+  }    
+
 }
+
+console.log(authStore.user)
 </script>
 
 <template>
